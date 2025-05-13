@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Client table with Advanced Multi-level-sorting
 
-## Getting Started
+**Overview**
 
-First, run the development server:
+- This is a client management table with advanced multi-level sorting.
+- **Open sorting panel**
+- **A simple sort:** Add "Client Name (A-Z)" and apply. See the table update.
+- **A multi-sort:** Add "Client Name (A-Z)" then "Created At (Newest to Oldest)". Now, clients with the same name will be further sorted by when they were created. See the table update.
+- **Drag-and-drop reordering of sort criteria** in the panel and see how it changes the table.
+- **Sort persistence:** Refresh the page, see the sort order is persist because of localStorage.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**How the Sorting Logic Works**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- The core sorting logic is quite straightforward. When you apply multiple sort criteria...
+- applySorting Function -
+    - 1. We take the **first** sort rule (e.g., Client Name).
+    - 2. If two clients are different by this rule, their order is decided. We stop.
+    - 3. If they are the **same** by the first rule (e.g., same name), we then look at the **second** sort rule (e.g., Created At) to decide their order.
+    - 4. This continues for all applied sort rules, in the order you set them.
+- This means higher priority sorts always take precedence, and lower priority sorts only break ties.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Libraries & Tools Used**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js App Router
+- Tailwind CSS
+- Typescript - for type-safety
+- Shadcn/UI - for pre-built components
+- dnd-kit - for drag and drop functionalities
+- Luicde-react - for icons

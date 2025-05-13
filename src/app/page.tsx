@@ -1,103 +1,149 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useState, useMemo, useEffect } from 'react';
+import { ArrowUpDown, Filter, Plus, Search } from 'lucide-react';
+
+import { ClientTable } from '@/components/ClientTable';
+import { SortPanel } from '@/components/SortPanel';
+import { Button } from '@/components/ui/button';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { MOCK_CLIENTS } from '@/lib/mock-data';
+import { SortCriterion, Client } from '@/types';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import { Separator } from '@/components/ui/separator';
+import { applySorting } from '@/lib/utils';
+
+const CLIENTS_SORT_STORAGE_KEY = 'clientsTableSortOrder';
+
+const DEFAULT_SORT_CRITERIA: SortCriterion[] = [
+  { id: 'name', label: 'Client Name', direction: 'asc', type: 'string' },
+];
+
+export default function Clients() {
+  const [isMounted, setIsMounted] = useState(false);
+  const [clientsData] = useState<Client[]>(MOCK_CLIENTS);
+
+  const [appliedSorts, setAppliedSorts] = useLocalStorage<SortCriterion[]>(
+    CLIENTS_SORT_STORAGE_KEY,
+    DEFAULT_SORT_CRITERIA
+  );
+
+  const [isSortPopoverOpen, setIsSortPopoverOpen] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const sortedClients = useMemo(() => {
+    if (!isMounted) return [];
+    return applySorting(clientsData, appliedSorts);
+  }, [clientsData, appliedSorts, isMounted]);
+
+  const handleApplySorts = (newSorts: SortCriterion[]) => {
+    setAppliedSorts(newSorts);
+    setIsSortPopoverOpen(false);
+  };
+
+  const renderSortBadge = () => {
+    if (!isMounted || !appliedSorts || appliedSorts.length === 0) return null;
+
+    return (
+      <span className='absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-semibold text-white'>
+        {appliedSorts.length}
+      </span>
+    );
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className='container mx-auto py-8 px-4 md:px-6 lg:px-8'>
+      <h1 className='text-xl font-medium'>Clients</h1>
+      <Separator className='my-6' />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <div className='flex justify-between items-center mb-4 gap-4'>
+        <div className='flex items-center gap-2'>
+          <Button
+            variant='ghost'
+            className='font-bold cursor-pointer text-primary relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary'
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            All
+          </Button>
+          <Button
+            variant='ghost'
+            className=' cursor-pointer text-muted-foreground'
           >
-            Read our docs
-          </a>
+            Individual
+          </Button>
+          <Button
+            variant='ghost'
+            className='text-muted-foreground cursor-pointer'
+          >
+            Company
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className='flex items-center gap-2'>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-9 w-9 text-muted-foreground cursor-pointer'
+          >
+            <Search className='h-4 w-4' />
+            <span className='sr-only'>Search</span>
+          </Button>
+
+          <Popover open={isSortPopoverOpen} onOpenChange={setIsSortPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-9 w-9 relative text-muted-foreground cursor-pointer'
+              >
+                <ArrowUpDown className='h-4 w-4' />
+                {renderSortBadge()}
+                <span className='sr-only'>Sort</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className='w-auto p-0' align='end'>
+              {isSortPopoverOpen && (
+                <SortPanel
+                  initialSorts={appliedSorts}
+                  onApply={handleApplySorts}
+                  onClose={() => setIsSortPopoverOpen(false)}
+                />
+              )}
+            </PopoverContent>
+          </Popover>
+
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-9 w-9 text-muted-foreground cursor-pointer'
+          >
+            <Filter className='h-4 w-4' />
+            <span className='sr-only'>Filter</span>
+          </Button>
+          <Button className='h-9'>
+            <Plus className='mr-2 h-4 w-4' /> Add Client
+          </Button>
+        </div>
+      </div>
+
+      <div className='border rounded-lg overflow-hidden'>
+        <div className='border rounded-lg overflow-hidden'>
+          {isMounted ? (
+            <ClientTable clients={sortedClients} />
+          ) : (
+            // Optional: Render a placeholder or loading state during SSR/initial hydration
+            <div className='p-4 text-center text-muted-foreground'>
+              Loading table...
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
