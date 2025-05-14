@@ -2,6 +2,8 @@
 
 **Overview**
 
+**Demo Video** https://www.loom.com/share/a9ab8d75edcd4477aee97cfa0bbf93ab
+
 - This is a client management table with advanced multi-level sorting.
 - **Open sorting panel**
 - **A simple sort:** Add "Client Name (A-Z)" and apply. See the table update.
