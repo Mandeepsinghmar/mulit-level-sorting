@@ -1,7 +1,9 @@
 # Client table with Advanced Multi-level-sorting
 
 
-[**Demo Video**](https://www.loom.com/share/a9ab8d75edcd4477aee97cfa0bbf93ab)
+**Demo Video**
+
+https://www.loom.com/share/a9ab8d75edcd4477aee97cfa0bbf93ab
 
 **Overview**
 
